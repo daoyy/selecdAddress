@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+    <title>address</title>
+
+</head>
+
+<body>
+
+    <input id="postcode" name="postcode" maxlength="8">
+    <br />
+
+    <input id="address2" name="address2">
+    <br />
+    <input id="address3" name="address3">
+    <br />
+
+
+    <!-- <li><input value="赋值：951" onclick="inputCode('951');" type="button"></li> -->
+
+    <!-- 地址相关数据 -->
+    <!-- <link rel="stylesheet" type="text/css" href="sample.css" /> -->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.0.min.js"></script>
+    <script type="text/javascript" src="https://jpostal-1006.appspot.com/jquery.jpostal.js"></script>
+
+    <script>
+        function setupWebViewJavascriptBridge(callback) {
+
+            //Android使用
+            if (window.WebViewJavascriptBridge) {
+                callback(WebViewJavascriptBridge)
+            } else {
+                document.addEventListener(
+                    'WebViewJavascriptBridgeReady'
+                    , function () {
+                        callback(WebViewJavascriptBridge)
+                    },
+                    false
+                );
+            }
+        }
+        $(window).ready(function () {
+            $('#postcode1').jpostal({
+                postcode: [
+                    '#postcode',
+                ],
+                address: {
+                    '#address2': '%4',
+                    '#address3': '%5',
+                }
+            });
+        });
+
+        var t1;
+
+        function inputCode(responseData) {
+            document.getElementById('postcode').value = responseData;
+            $("#postcode").change()
+
+            t1 = setInterval(function () {
+                var str1 = document.getElementById('address2').value;
+                var str2 = document.getElementById('address3').value;
+                // if (str1.length > 0 || str2.length > 0) {
+                //     reloadAppAddressDatas(str1);
+                //     reloadAppStreetDatas(str2);
+                // }
+                if (str1.length > 0) {
+                    setupWebViewJavascriptBridge(function (bridge) {
+                        //参数1： pay 注册flag 供原生使用，要和原生统一
+                        //参数2： 是调起原生时向原生传递的参数
+                        //参数3： 原生调用回调返回的数据
+                        bridge.callHandler('reloadAppAddressDatas', str1, function (resp) {
+                            console.log(resp)
+                            // jpn.reloadAppAddressDatas(value);
+                            clearInterval(t1);
+
+                        })
+                    })
+                }
+                if (str2.length > 0) {
+                    setupWebViewJavascriptBridge(function (bridge) {
+                        //参数1： pay 注册flag 供原生使用，要和原生统一
+                        //参数2： 是调起原生时向原生传递的参数
+                        //参数3： 原生调用回调返回的数据
+                        bridge.callHandler('reloadAppStreetDatas', str2, function (resp) {
+                            console.log(resp)
+                            // jpn.reloadAppStreetDatas(value);
+                            clearInterval(t1);
+                        })
+                    })
+                }
+
+            }, 1000);
+        }
+
+        // function reloadAppAddressDatas(value) {
+        //     console.log("地址1")
+        //     console.log(value)
+        //     setupWebViewJavascriptBridge(function (bridge) {
+        //         //参数1： pay 注册flag 供原生使用，要和原生统一
+        //         //参数2： 是调起原生时向原生传递的参数
+        //         //参数3： 原生调用回调返回的数据
+        //         bridge.callHandler('reloadAppAddressDatas', value, function (resp) {
+
+        //         })
+        //     })
+        //     // jpn.reloadAppAddressDatas(value);
+        //     // clearInterval(t1);
+        // }
+
+        // function reloadAppStreetDatas(value) {
+        //     console.log("地址2")
+        //     console.log(value)
+        //     setupWebViewJavascriptBridge(function (bridge) {
+        //         //参数1： pay 注册flag 供原生使用，要和原生统一
+        //         //参数2： 是调起原生时向原生传递的参数
+        //         //参数3： 原生调用回调返回的数据
+        //         bridge.callHandler('reloadAppStreetDatas', value, function (resp) {
+
+        //         })
+        //     })
+        //     // jpn.reloadAppStreetDatas(value);
+        //     // clearInterval(t1);
+        // }
+        setupWebViewJavascriptBridge(function (bridge) {
+            //注册原生调起方法
+            //参数1： buttonjs 注册flag 供原生使用，要和原生统一
+            //参数2： data  是原生传给js 的数据
+            //参数3： responseCallback 是js 的回调，可以通过该方法给原生传数据
+            bridge.registerHandler("inputCode", function (data, responseCallback) {
+                inputCode(data)
+                responseCallback("button js callback");
+            });
+
+        })
+    </script>
+</body>
+
+</html>
